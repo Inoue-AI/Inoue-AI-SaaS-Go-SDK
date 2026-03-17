@@ -13,7 +13,7 @@ type InternalAPI struct {
 	client *InoueClient
 }
 
-// registerWorkerRequest is the JSON body for POST /internal/workers.
+// registerWorkerRequest is the JSON body for POST /internal/workers/register.
 type registerWorkerRequest struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
@@ -26,7 +26,7 @@ func (a *InternalAPI) RegisterWorker(ctx context.Context, workerID, name, adminT
 	body := registerWorkerRequest{ID: workerID, Name: name}
 	headers := map[string]string{"X-Admin-Token": adminToken}
 
-	err := a.client.request(ctx, "POST", "/internal/workers", body, nil, headers)
+	err := a.client.request(ctx, "POST", "/internal/workers/register", body, nil, headers)
 	if err != nil {
 		if sdkErr, ok := err.(*SdkError); ok && sdkErr.Status == 409 {
 			return nil
@@ -36,19 +36,24 @@ func (a *InternalAPI) RegisterWorker(ctx context.Context, workerID, name, adminT
 	return nil
 }
 
+// workerTokenRequest is the JSON body for POST /internal/workers/token.
+type workerTokenRequest struct {
+	WorkerID string `json:"worker_id"`
+}
+
 // workerTokenResponse is the JSON body returned by the token endpoint.
 type workerTokenResponse struct {
-	Token string `json:"token"`
+	WorkerToken string `json:"worker_token"`
 }
 
 // WorkerToken obtains a JWT for the given worker using the bootstrap secret.
 // The returned string is a Bearer token suitable for Authorization headers.
 func (a *InternalAPI) WorkerToken(ctx context.Context, workerID, bootstrapSecret string) (string, error) {
-	path := fmt.Sprintf("/internal/workers/%s/token", workerID)
+	body := workerTokenRequest{WorkerID: workerID}
 	headers := map[string]string{"X-Worker-Bootstrap": bootstrapSecret}
 
 	var apiResp ApiResponse
-	err := a.client.request(ctx, "POST", path, nil, &apiResp, headers)
+	err := a.client.request(ctx, "POST", "/internal/workers/token", body, &apiResp, headers)
 	if err != nil {
 		return "", fmt.Errorf("worker token: %w", err)
 	}
@@ -58,7 +63,7 @@ func (a *InternalAPI) WorkerToken(ctx context.Context, workerID, bootstrapSecret
 		return "", fmt.Errorf("worker token: failed to decode token response: %w", err)
 	}
 
-	return tokenResp.Token, nil
+	return tokenResp.WorkerToken, nil
 }
 
 // setWorkerStatusRequest is the JSON body for the worker status endpoint.
