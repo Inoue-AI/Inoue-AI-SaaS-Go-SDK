@@ -111,7 +111,7 @@ func (c *InoueClient) request(ctx context.Context, method, path string, body int
 	}
 
 	if resp.StatusCode >= 400 {
-		return parseErrorResponse(respBody, resp.StatusCode, traceID)
+		return parseErrorResponse(respBody, resp.StatusCode, traceID, method, path)
 	}
 
 	if dest != nil && len(respBody) > 0 {
@@ -124,16 +124,28 @@ func (c *InoueClient) request(ctx context.Context, method, path string, body int
 }
 
 // parseErrorResponse attempts to extract a structured error from the response body.
-// If the body cannot be parsed it falls back to a generic SdkError.
-func parseErrorResponse(body []byte, status int, traceID string) *SdkError {
+// If the body cannot be parsed it falls back to a generic SdkError with the raw body.
+// The details map always includes the raw response for debugging.
+func parseErrorResponse(body []byte, status int, traceID, method, path string) *SdkError {
+	details := map[string]interface{}{
+		"raw_body": string(body),
+		"method":   method,
+		"path":     path,
+	}
+
 	var apiResp ApiResponse
 	if err := json.Unmarshal(body, &apiResp); err == nil && apiResp.Error != nil {
+		if apiResp.Error.Details != nil {
+			for k, v := range apiResp.Error.Details {
+				details[k] = v
+			}
+		}
 		return &SdkError{
 			Code:    apiResp.Error.Code,
 			Message: apiResp.Error.Message,
 			Status:  status,
 			TraceID: traceID,
-			Details: apiResp.Error.Details,
+			Details: details,
 		}
 	}
 
@@ -142,6 +154,7 @@ func parseErrorResponse(body []byte, status int, traceID string) *SdkError {
 		Message: string(body),
 		Status:  status,
 		TraceID: traceID,
+		Details: details,
 	}
 }
 

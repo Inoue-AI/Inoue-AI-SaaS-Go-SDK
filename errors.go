@@ -13,10 +13,17 @@ type SdkError struct {
 	Details map[string]interface{}
 }
 
-// Error returns a formatted string representation of the SDK error.
+// Error returns a formatted string representation of the SDK error,
+// including the raw response body from details for debugging.
 func (e *SdkError) Error() string {
+	var base string
 	if e.TraceID != "" {
-		return fmt.Sprintf("inoue-sdk: %s (code=%s, status=%d, trace=%s)", e.Message, e.Code, e.Status, e.TraceID)
+		base = fmt.Sprintf("inoue-sdk: %s (code=%s, status=%d, trace=%s)", e.Message, e.Code, e.Status, e.TraceID)
+	} else {
+		base = fmt.Sprintf("inoue-sdk: %s (code=%s, status=%d)", e.Message, e.Code, e.Status)
 	}
-	return fmt.Sprintf("inoue-sdk: %s (code=%s, status=%d)", e.Message, e.Code, e.Status)
+	if raw, ok := e.Details["raw_body"]; ok {
+		return fmt.Sprintf("%s body=%s", base, raw)
+	}
+	return base
 }
