@@ -13,14 +13,53 @@ import (
 )
 
 // InoueClient is the top-level client for the Inoue AI SaaS API.
-// Create one with NewClient and then use the sub-API accessors (Internal, Schedule)
-// to call specific endpoints.
+// Create one with NewClient and then use the sub-API accessors to call specific endpoints.
 type InoueClient struct {
 	baseURL     string
 	accessToken string
 	httpClient  *http.Client
-	Internal    *InternalAPI
-	Schedule    *ScheduleAPI
+
+	// Core worker APIs
+	Internal *InternalAPI
+	Schedule *ScheduleAPI
+
+	// Auth / Org / Model APIs
+	Auth   *AuthAPI
+	Orgs   *OrgsAPI
+	Models *ModelsAPI
+
+	// Public v1 APIs
+	Prompts           *PromptsAPI
+	Jobs              *JobsAPI
+	Downloads         *DownloadsAPI
+	Credits           *CreditsAPI
+	Billing           *BillingAPI
+	Assets            *AssetsAPI
+	Collections       *CollectionsAPI
+	Albums            *AlbumsAPI
+	Notifications     *NotificationsAPI
+	Posts             *PostsAPI
+	CalendarFeeds     *CalendarFeedsAPI
+	Pooling           *PoolingAPI
+	Analytics         *AnalyticsAPI
+	Audit             *AuditAPI
+	System            *SystemAPI
+	Webhooks          *WebhooksAPI
+	Workflows         *WorkflowsAPI
+	PushSubscriptions *PushSubscriptionsAPI
+	Vision            *VisionAPI
+	TikTok            *TikTokAPI
+	Referrals         *ReferralsAPI
+	HuggingFace       *HuggingFaceAPI
+	Civitai           *CivitaiAPI
+	ElevenLabs        *ElevenLabsAPI
+	Loras             *LorasAPI
+	Legal             *LegalAPI
+	Apps              *AppsAPI
+	DiscordWebhooks   *DiscordWebhooksAPI
+	AdminDownloads    *AdminDownloadsAPI
+	Fanvue            *FanvueAPI
+	Threads           *ThreadsAPI
 }
 
 // Option configures an InoueClient during construction.
@@ -61,6 +100,40 @@ func NewClient(baseURL string, opts ...Option) *InoueClient {
 	}
 	c.Internal = &InternalAPI{client: c}
 	c.Schedule = &ScheduleAPI{client: c}
+	c.Auth = &AuthAPI{client: c}
+	c.Orgs = &OrgsAPI{client: c}
+	c.Models = &ModelsAPI{client: c}
+	c.Prompts = &PromptsAPI{client: c}
+	c.Jobs = &JobsAPI{client: c}
+	c.Downloads = &DownloadsAPI{client: c}
+	c.Credits = &CreditsAPI{client: c}
+	c.Billing = &BillingAPI{client: c}
+	c.Assets = &AssetsAPI{client: c}
+	c.Collections = &CollectionsAPI{client: c}
+	c.Albums = &AlbumsAPI{client: c}
+	c.Notifications = &NotificationsAPI{client: c}
+	c.Posts = &PostsAPI{client: c}
+	c.CalendarFeeds = &CalendarFeedsAPI{client: c}
+	c.Pooling = &PoolingAPI{client: c}
+	c.Analytics = &AnalyticsAPI{client: c}
+	c.Audit = &AuditAPI{client: c}
+	c.System = &SystemAPI{client: c}
+	c.Webhooks = &WebhooksAPI{client: c}
+	c.Workflows = &WorkflowsAPI{client: c}
+	c.PushSubscriptions = &PushSubscriptionsAPI{client: c}
+	c.Vision = &VisionAPI{client: c}
+	c.TikTok = &TikTokAPI{client: c}
+	c.Referrals = &ReferralsAPI{client: c}
+	c.HuggingFace = &HuggingFaceAPI{client: c}
+	c.Civitai = &CivitaiAPI{client: c}
+	c.ElevenLabs = &ElevenLabsAPI{client: c}
+	c.Loras = &LorasAPI{client: c}
+	c.Legal = &LegalAPI{client: c}
+	c.Apps = &AppsAPI{client: c}
+	c.DiscordWebhooks = &DiscordWebhooksAPI{client: c}
+	c.AdminDownloads = &AdminDownloadsAPI{client: c}
+	c.Fanvue = &FanvueAPI{client: c}
+	c.Threads = &ThreadsAPI{client: c}
 	return c
 }
 
